@@ -1,167 +1,110 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/LEq9uTEL)
-# assignment-3
+# Bitcoin Transaction Decoder
 
-# Bitcoin Transaction Decoding Assignment
-
-## Transaction Hex
-
-```
-0200000000010131811cd355c357e0e01437d9bcf690df824e9ff785012b6115dfae3d8e8b36c10100000000fdffffff0220a107000000000016001485d78eb795bd9c8a21afefc8b6fdaedf718368094c08100000000000160014840ab165c9c2555d4a31b9208ad806f89d2535e20247304402207bce86d430b58bb6b79e8c1bbecdf67a530eff3bc61581a1399e0b28a741c0ee0220303d5ce926c60bf15577f2e407f28a2ef8fe8453abd4048b716e97dbb1e3a85c01210260828bc77486a55e3bc6032ccbeda915d9494eda17b4a54dbe3b24506d40e4ff43030e00
-```
-
-**Transaction Details:** [View on mempool.space](https://mempool.space/tx/04f487fe9754a925c2e96492afeab47e7c839d0582eef80b3ecc9ca3afa05842)
+A from-scratch Python decoder for raw Bitcoin transaction hex, supporting both **Legacy** and **SegWit** transaction formats.
 
 ---
 
-## Task 1: Manually Decode the Transaction
+## Files
 
-Decode the transaction hex manually and identify all components.
-
-### Required Fields to Identify:
-
-1. **Version**
-2. **Marker and Flag** (for SegWit transactions)
-3. **Input Count**
-4. **Inputs:**
-   - Previous transaction hash (txid)
-   - Previous output index (vout)
-   - Script length
-   - ScriptSig
-   - Sequence number
-5. **Output Count**
-6. **Outputs:**
-   - Amount (in satoshis)
-   - Script length
-   - ScriptPubKey
-7. **Witness Data** (for SegWit transactions)
-8. **Locktime**
-
-### Submission Format:
-
-```
-=== Manual Transaction Decode ===
-
-Version: [your answer]
-Marker: [your answer]
-Flag: [your answer]
-
-Input Count: [your answer]
-
-Input #1:
-  Previous TX Hash: [your answer]
-  Previous Output Index: [your answer]
-  Script Length: [your answer]
-  ScriptSig: [your answer]
-  Sequence: [your answer]
-
-Output Count: [your answer]
-
-Output #1:
-  Amount (satoshis): [your answer]
-  Script Length: [your answer]
-  ScriptPubKey: [your answer]
-
-Output #2:
-  Amount (satoshis): [your answer]
-  Script Length: [your answer]
-  ScriptPubKey: [your answer]
-
-Witness Data:
-  [your answer]
-
-Locktime: [your answer]
-```
+| File | Purpose |
+|------|---------|
+| `manual-decode.md` | Hand-traced byte-by-byte decode of the assignment transaction |
+| `decoder.py` | Full Python decoder — no external dependencies |
+| `output.txt` | Console output from running `decoder.py` |
+| `README.md` | This file |
 
 ---
 
-## Task 2: Write a Transaction Decoder Function
+## Usage
 
-Write a function (or set of functions) in any programming language that can decode any given Bitcoin transaction hex.
+```bash
+python3 decoder.py
+```
 
-### Requirements:
+No third-party libraries required — only the Python standard library (`json`, `struct`).
 
-- Accept transaction hex as input
-- Parse and decode all transaction components
-- Handle both legacy and SegWit transactions
-- Output structured transaction data
-- Test with the provided transaction hex
-- Share the complete output
-
-### Suggested Structure:
+To decode a different transaction, change the `tx_hex` string at the bottom of `decoder.py`, or import and call the function directly:
 
 ```python
-def decode_transaction(hex_string):
-    """
-    Decode a Bitcoin transaction from hex format
-    
-    Args:
-        hex_string: Raw transaction hex
-        
-    Returns:
-        Dictionary containing decoded transaction data
-    """
-    # Your implementation here
-    pass
+from decoder import decode_transaction, print_decoded
 
-# Test with provided transaction
-tx_hex = "0200000000010131811cd355c357e0e01437d9bcf690df824e9ff785012b6115dfae3d8e8b36c10100000000fdffffff0220a107000000000016001485d78eb795bd9c8a21afefc8b6fdaedf718368094c08100000000000160014840ab165c9c2555d4a31b9208ad806f89d2535e20247304402207bce86d430b58bb6b79e8c1bbecdf67a530eff3bc61581a1399e0b28a741c0ee0220303d5ce926c60bf15577f2e407f28a2ef8fe8453abd4048b716e97dbb1e3a85c01210260828bc77486a55e3bc6032ccbeda915d9494eda17b4a54dbe3b24506d40e4ff43030e00"
-
-decoded = decode_transaction(tx_hex)
-print(decoded)
-```
-
-### Output Format:
-
-Your function should output something like:
-
-```json
-{
-  "version": 2,
-  "marker": "00",
-  "flag": "01",
-  "inputs": [
-    {
-      "txid": "...",
-      "vout": 1,
-      "scriptSig": "...",
-      "sequence": "..."
-    }
-  ],
-  "outputs": [
-    {
-      "amount": 500000,
-      "scriptPubKey": "..."
-    },
-    {
-      "amount": 1050700,
-      "scriptPubKey": "..."
-    }
-  ],
-  "witness": [...],
-  "locktime": 921411
-}
+result = decode_transaction("YOUR_TX_HEX_HERE")
+print_decoded(result)
 ```
 
 ---
 
-## Submission Guidelines
+## How It Works
 
-Submit the following:
+### ByteReader
 
-```
-📁 transaction-decoding-assignment/
-├── manual-decode.md (Task 1: Manual decoding)
-├── decoder.py (or .js, .go, etc.)
-├── output.txt (Program output)
-└── README.md (Documentation explaining your code)
-```
+A stateful cursor over the raw bytes. Two key methods:
+
+- **`read(n)`** — reads exactly `n` bytes and advances the cursor
+- **`read_varint()`** — reads a Bitcoin variable-length integer
+
+### VarInt Encoding
+
+Bitcoin encodes counts and lengths with a compact variable-length integer:
+
+| First byte | Extra bytes | Max value |
+|------------|-------------|-----------|
+| `< 0xFD` | 0 | 252 |
+| `0xFD` | 2 | 65,535 |
+| `0xFE` | 4 | 4,294,967,295 |
+| `0xFF` | 8 | 2^64 − 1 |
+
+### SegWit Detection
+
+After reading the 4-byte version, the decoder peeks at the next two bytes. If they are `0x00 0x01`, the transaction uses the SegWit serialisation format (BIP141), and the decoder reads the marker/flag pair before continuing.
+
+### Little-Endian Fields
+
+Most multi-byte integers in Bitcoin are stored in little-endian order:
+- Version, vout, amount, locktime → read with `int.from_bytes(b, "little")`
+- TXID bytes are reversed for display — block explorers show them big-endian
+
+### Witness Data
+
+In SegWit transactions, after all outputs there is one witness stack per input. Each stack has a VarInt item-count, then each item has a VarInt length followed by that many bytes.
 
 ---
 
-## Tips
+## Decoded Transaction Summary
 
-- Remember Bitcoin uses little-endian byte order for most fields
-- SegWit transactions have marker `00` and flag `01` after version
-- VarInt encoding is used for counts and lengths
-- Amounts are in satoshis (1 BTC = 100,000,000 satoshis)
-- Compare your results with the mempool.space link to verify accuracy
+| Field | Value |
+|-------|-------|
+| Version | 2 |
+| Type | Native SegWit (P2WPKH) |
+| Marker / Flag | `00` / `01` |
+| Inputs | 1 |
+| Previous TXID | `c1368b8e3daedf15612b0185f79f4e82df90f6bcd93714e0e057c355d31c8131` |
+| Previous Vout | 1 |
+| ScriptSig | *(empty — witness used instead)* |
+| Sequence | `fdffffff` (RBF enabled) |
+| Outputs | 2 |
+| Output 1 | 500,000 sat → P2WPKH |
+| Output 2 | 1,050,700 sat → P2WPKH |
+| Witness Item 1 | 71-byte DER signature (SIGHASH_ALL) |
+| Witness Item 2 | 33-byte compressed public key |
+| Locktime | 918,339 |
+
+---
+
+## Script Type Classification
+
+`classify_script()` identifies common output script types by their byte patterns:
+
+| Prefix | Type |
+|--------|------|
+| `0014` + 20 bytes | P2WPKH |
+| `0020` + 32 bytes | P2WSH |
+| `76a914…88ac` | P2PKH |
+| `a914…87` | P2SH |
+| `5120` + 32 bytes | P2TR (Taproot) |
+
+---
+
+## Verification
+
+Results were cross-checked against [mempool.space](https://mempool.space).

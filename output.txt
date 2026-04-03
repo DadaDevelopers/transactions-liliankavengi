@@ -1,0 +1,93 @@
+
+[1] Running decoder on provided transaction...
+
+============================================================
+DECODED BITCOIN TRANSACTION
+============================================================
+  Version   : 2
+  SegWit    : True
+  Marker    : 00
+  Flag      : 01
+
+  Inputs    : 1
+
+  ── Input #1
+     Previous TXID   : c1368b8e3daedf15612b0185f79f4e82df90f6bcd93714e0e057c355d31c8131
+     Previous Vout   : 1
+     ScriptSig Len   : 0
+     ScriptSig       : (empty — SegWit)
+     Sequence        : fdffffff  (4294967293)
+
+  Outputs   : 2
+
+  ── Output #1
+     Amount          : 500,000 satoshis  (0.00500000 BTC)
+     ScriptPubKey Len: 22
+     ScriptPubKey    : 001485d78eb795bd9c8a21afefc8b6fdaedf71836809
+     Script Type     : P2WPKH (Pay-to-Witness-Public-Key-Hash)
+
+  ── Output #2
+     Amount          : 1,050,700 satoshis  (0.01050700 BTC)
+     ScriptPubKey Len: 22
+     ScriptPubKey    : 0014840ab165c9c2555d4a31b9208ad806f89d2535e2
+     Script Type     : P2WPKH (Pay-to-Witness-Public-Key-Hash)
+
+  Witness Data:
+
+  ── Input #1 witness
+     Item 1  (71 bytes): 304402207bce86d430b58bb6b79e8c1bbecdf67a530eff3bc61581a1399e0b28a741c0ee0220303d5ce926c60bf15577f2e407f28a2ef8fe8453abd4048b716e97dbb1e3a85c01
+     Item 2  (33 bytes): 0260828bc77486a55e3bc6032ccbeda915d9494eda17b4a54dbe3b24506d40e4ff
+
+  Locktime  : 918339
+============================================================
+
+[2] JSON representation:
+
+{
+  "version": 2,
+  "is_segwit": true,
+  "marker": "00",
+  "flag": "01",
+  "input_count": 1,
+  "inputs": [
+    {
+      "txid": "c1368b8e3daedf15612b0185f79f4e82df90f6bcd93714e0e057c355d31c8131",
+      "txid_raw_le": "31811cd355c357e0e01437d9bcf690df824e9ff785012b6115dfae3d8e8b36c1",
+      "vout": 1,
+      "script_length": 0,
+      "scriptSig": "",
+      "sequence": "fdffffff",
+      "sequence_int": 4294967293
+    }
+  ],
+  "output_count": 2,
+  "outputs": [
+    {
+      "amount_satoshis": 500000,
+      "amount_btc": 0.005,
+      "script_length": 22,
+      "scriptPubKey": "001485d78eb795bd9c8a21afefc8b6fdaedf71836809",
+      "script_type": "P2WPKH (Pay-to-Witness-Public-Key-Hash)"
+    },
+    {
+      "amount_satoshis": 1050700,
+      "amount_btc": 0.010507,
+      "script_length": 22,
+      "scriptPubKey": "0014840ab165c9c2555d4a31b9208ad806f89d2535e2",
+      "script_type": "P2WPKH (Pay-to-Witness-Public-Key-Hash)"
+    }
+  ],
+  "witness": [
+    [
+      {
+        "length": 71,
+        "data": "304402207bce86d430b58bb6b79e8c1bbecdf67a530eff3bc61581a1399e0b28a741c0ee0220303d5ce926c60bf15577f2e407f28a2ef8fe8453abd4048b716e97dbb1e3a85c01"
+      },
+      {
+        "length": 33,
+        "data": "0260828bc77486a55e3bc6032ccbeda915d9494eda17b4a54dbe3b24506d40e4ff"
+      }
+    ]
+  ],
+  "locktime": 918339
+}
